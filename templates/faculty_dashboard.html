@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Faculty Dashboard - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">Faculty Academic Dashboard</h3>
+      <p class="text-muted mb-0 small">Welcome, {{ current_user.name }}. Manage your assigned courses, student attendance, and examination marks.</p>
+    </div>
+    <div>
+      <a href="{% url 'academics:attendance_mark' %}" class="btn btn-primary btn-sm me-2">
+        <i class="fa-solid fa-calendar-check me-1"></i> Mark Attendance
+      </a>
+      <a href="{% url 'academics:marks_entry' %}" class="btn btn-outline-primary btn-sm">
+        <i class="fa-solid fa-square-poll-vertical me-1"></i> Enter Marks
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card stat-card p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Assigned Courses</div>
+            <div class="stat-number">{{ courses_count }}</div>
+          </div>
+          <div class="stat-icon">
+            <i class="fa-solid fa-book-bookmark text-primary"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card stat-card p-3" style="border-left-color: #10b981;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Students in Dept</div>
+            <div class="stat-number">{{ assigned_students|length }}</div>
+          </div>
+          <div class="stat-icon" style="background-color: #e7f8f2; color: #10b981;">
+            <i class="fa-solid fa-users"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card stat-card p-3" style="border-left-color: #f59e0b;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Recent Sessions Marked</div>
+            <div class="stat-number">{{ recent_attendance|length }}</div>
+          </div>
+          <div class="stat-icon" style="background-color: #fef3c7; color: #f59e0b;">
+            <i class="fa-solid fa-calendar-days"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assigned Courses Grid -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <span class="fw-bold"><i class="fa-solid fa-layer-group text-primary me-2"></i> My Assigned Courses</span>
+    </div>
+    <div class="card-body p-3">
+      <div class="row g-3">
+        {% for c in assigned_courses %}
+          <div class="col-md-6 col-lg-4">
+            <div class="p-3 border rounded-3 bg-light h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-primary">{{ c.course_code }}</span>
+                <span class="badge bg-light text-dark border">Sem {{ c.semester }}</span>
+              </div>
+              <h6 class="fw-bold mb-1">{{ c.name }}</h6>
+              <small class="text-muted d-block mb-3">{{ c.department }}</small>
+              <div class="d-flex gap-2">
+                <a href="{% url 'academics:attendance_mark' %}?course_id={{ c.course_code }}" class="btn btn-sm btn-primary py-1 px-2">
+                  <i class="fa-solid fa-calendar-check me-1"></i> Attendance
+                </a>
+                <a href="{% url 'academics:marks_entry' %}?course_id={{ c.course_code }}" class="btn btn-sm btn-outline-secondary py-1 px-2">
+                  <i class="fa-solid fa-pen-to-square me-1"></i> Marks
+                </a>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 py-3 text-center text-muted">
+            No courses are currently assigned to your account.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Attendance History & Announcements -->
+  <div class="row g-4">
+    <!-- Attendance Table -->
+    <div class="col-lg-7">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span class="fw-bold"><i class="fa-solid fa-clipboard-check me-2 text-primary"></i> Recent Attendance Records</span>
+          <a href="{% url 'academics:attendance_view' %}" class="btn btn-sm btn-outline-primary">View Full History</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-custom mb-0">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Course</th>
+                  <th>Student</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in recent_attendance %}
+                  <tr>
+                    <td><small class="fw-semibold">{{ r.date }}</small></td>
+                    <td><span class="badge bg-light text-dark border">{{ r.course_id }}</span></td>
+                    <td>{{ r.student_name }} <small class="text-muted">({{ r.student_id }})</small></td>
+                    <td>
+                      {% if r.status == 'Present' %}
+                        <span class="badge bg-success">Present</span>
+                      {% else %}
+                        <span class="badge bg-danger">Absent</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">No attendance marked yet.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Announcements -->
+    <div class="col-lg-5">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header">
+          <span class="fw-bold"><i class="fa-solid fa-bullhorn me-2 text-warning"></i> Campus Announcements</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            {% for a in recent_announcements %}
+              <div class="list-group-item p-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="mb-0 fw-semibold text-primary small">{{ a.title }}</h6>
+                  <span class="badge bg-light text-muted border">{{ a.publication_date }}</span>
+                </div>
+                <p class="text-muted small mb-1">{{ a.description|truncatewords:18 }}</p>
+                <small class="text-secondary" style="font-size: 0.75rem;">By: {{ a.author }}</small>
+              </div>
+            {% empty %}
+              <div class="p-4 text-center text-muted">No announcements posted.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

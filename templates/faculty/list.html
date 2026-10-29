@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Faculty Directory - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">Faculty Management</h3>
+      <p class="text-muted mb-0 small">Registered Faculty Members: <span class="badge bg-primary">{{ total_count }}</span></p>
+    </div>
+    {% if user_role == 'admin' %}
+      <a href="{% url 'faculty:add' %}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-user-tie me-1"></i> Add New Faculty
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Search & Filter Card -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body p-3">
+      <form method="GET" action="{% url 'faculty:list' %}" class="row g-2 align-items-center">
+        <div class="col-md-5">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+            <input type="text" name="search" class="form-control" placeholder="Search by name, ID, or designation..." value="{{ search_query }}">
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <select name="department" class="form-select form-select-sm">
+            <option value="">All Departments</option>
+            {% for d in departments %}
+              <option value="{{ d.name }}" {% if selected_department == d.name %}selected{% endif %}>{{ d.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3 d-flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+            <i class="fa-solid fa-filter me-1"></i> Filter
+          </button>
+          {% if search_query or selected_department %}
+            <a href="{% url 'faculty:list' %}" class="btn btn-outline-secondary btn-sm">Reset</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Faculty Table -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-custom mb-0">
+          <thead>
+            <tr>
+              <th>Faculty ID</th>
+              <th>Full Name</th>
+              <th>Department</th>
+              <th>Designation</th>
+              <th>Assigned Subjects</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in faculty_members %}
+              <tr>
+                <td><strong class="text-primary">{{ f.faculty_id }}</strong></td>
+                <td>
+                  <a href="{% url 'faculty:detail' f.faculty_id %}" class="text-decoration-none fw-semibold text-dark">
+                    {{ f.name }}
+                  </a>
+                  <div class="text-muted small">{{ f.email }}</div>
+                </td>
+                <td>{{ f.department }}</td>
+                <td><span class="badge bg-light text-dark border">{{ f.designation }}</span></td>
+                <td>
+                  {% for s in f.assigned_subjects %}
+                    <span class="badge bg-primary me-1">{{ s }}</span>
+                  {% empty %}
+                    <span class="text-muted small">None assigned</span>
+                  {% endfor %}
+                </td>
+                <td>
+                  {% if f.account_status == 'Active' %}
+                    <span class="badge bg-success">Active</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'faculty:detail' f.faculty_id %}" class="btn btn-xs btn-outline-primary btn-sm py-0 px-2 me-1" title="View Profile">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                  {% if user_role == 'admin' %}
+                    <a href="{% url 'faculty:edit' f.faculty_id %}" class="btn btn-xs btn-outline-secondary btn-sm py-0 px-2 me-1" title="Edit">
+                      <i class="fa-solid fa-pen"></i>
+                    </a>
+                    <a href="{% url 'faculty:delete' f.faculty_id %}" class="btn btn-xs btn-outline-danger btn-sm py-0 px-2" title="Delete">
+                      <i class="fa-solid fa-trash"></i>
+                    </a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                  <i class="fa-solid fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
+                  No faculty records found.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

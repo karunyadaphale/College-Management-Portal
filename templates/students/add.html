@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Student - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-9 mx-auto">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon me-3">
+              <i class="fa-solid fa-user-plus text-primary fs-4"></i>
+            </div>
+            <div>
+              <h5 class="mb-0 fw-bold">Add New Student</h5>
+              <small class="text-muted">Enter student personal and academic details</small>
+            </div>
+          </div>
+          <a href="{% url 'students:list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to List
+          </a>
+        </div>
+
+        <div class="card-body p-4">
+          <form method="POST" action="{% url 'students:add' %}">
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <!-- Student ID -->
+              <div class="col-md-6">
+                <label for="student_id" class="form-label fw-semibold">Student ID <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="student_id" name="student_id" placeholder="e.g. STU006" value="{{ form_data.student_id|default:'' }}" required>
+                <small class="text-muted">Unique institutional identifier</small>
+              </div>
+
+              <!-- Roll Number -->
+              <div class="col-md-6">
+                <label for="roll_no" class="form-label fw-semibold">Roll Number <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="roll_no" name="roll_no" placeholder="e.g. CS202404" value="{{ form_data.roll_no|default:'' }}" required>
+                <small class="text-muted">Class/University roll number</small>
+              </div>
+
+              <!-- Full Name -->
+              <div class="col-md-6">
+                <label for="name" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="e.g. Priya Sharma" value="{{ form_data.name|default:'' }}" required>
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-6">
+                <label for="email" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="e.g. priya.sharma@student.college.edu" value="{{ form_data.email|default:'' }}" required>
+              </div>
+
+              <!-- Department -->
+              <div class="col-md-6">
+                <label for="department" class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
+                <select class="form-select" id="department" name="department" required>
+                  <option value="">Select Department</option>
+                  {% for d in departments %}
+                    <option value="{{ d.name }}" {% if form_data.department == d.name %}selected{% endif %}>{{ d.name }} ({{ d.code }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- Semester -->
+              <div class="col-md-3">
+                <label for="semester" class="form-label fw-semibold">Semester <span class="text-danger">*</span></label>
+                <select class="form-select" id="semester" name="semester" required>
+                  {% for s in "12345678" %}
+                    <option value="{{ s }}" {% if form_data.semester == s or forloop.counter == 3 %}selected{% endif %}>Semester {{ s }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- Admission Year -->
+              <div class="col-md-3">
+                <label for="admission_year" class="form-label fw-semibold">Admission Year <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="admission_year" name="admission_year" value="{{ form_data.admission_year|default:'2024' }}" min="2015" max="2035" required>
+              </div>
+
+              <!-- Academic Year -->
+              <div class="col-md-4">
+                <label for="academic_year" class="form-label fw-semibold">Academic Year</label>
+                <input type="text" class="form-control" id="academic_year" name="academic_year" placeholder="e.g. 2024-2025" value="{{ form_data.academic_year|default:'2024-2025' }}">
+              </div>
+
+              <!-- Phone -->
+              <div class="col-md-4">
+                <label for="phone" class="form-label fw-semibold">Phone Number</label>
+                <input type="text" class="form-control" id="phone" name="phone" placeholder="e.g. +91 98765 00000" value="{{ form_data.phone|default:'' }}">
+              </div>
+
+              <!-- Account Status -->
+              <div class="col-md-4">
+                <label for="account_status" class="form-label fw-semibold">Account Status</label>
+                <select class="form-select" id="account_status" name="account_status">
+                  <option value="Active" {% if form_data.account_status != 'Inactive' %}selected{% endif %}>Active</option>
+                  <option value="Inactive" {% if form_data.account_status == 'Inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+              </div>
+
+              <!-- Initial Portal Password -->
+              <div class="col-md-12">
+                <div class="p-3 bg-light rounded mt-2">
+                  <label for="password" class="form-label fw-semibold">Student Portal Initial Password</label>
+                  <input type="text" class="form-control" id="password" name="password" value="Student@123">
+                  <small class="text-muted">A user login account is automatically created with username set to the Student ID in lowercase.</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <a href="{% url 'students:list' %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Save Student
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

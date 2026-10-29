@@ -1,0 +1,8 @@
+# Django Web Framework
+Django>=5.0,<7.0
+
+# MongoDB Driver
+pymongo>=4.6.0
+
+# Environment Variables
+python-dotenv>=1.0.0

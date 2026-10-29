@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Examination Marks - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">Examination Marks &amp; Results</h3>
+      <p class="text-muted mb-0 small">Audit student examination scores, percentages, and pass/fail standings.</p>
+    </div>
+    {% if user_role == 'admin' or user_role == 'faculty' %}
+      <a href="{% url 'academics:marks_entry' %}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-pen-to-square me-1"></i> Enter / Edit Marks
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Filter Card -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-body p-3">
+      <form method="GET" action="{% url 'academics:marks_view' %}" class="row g-2 align-items-center">
+        <div class="col-md-4">
+          <select name="course_id" class="form-select form-select-sm">
+            <option value="">All Subjects / Courses</option>
+            {% for c in courses %}
+              <option value="{{ c.course_code }}" {% if selected_course == c.course_code %}selected{% endif %}>
+                {{ c.course_code }} - {{ c.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <select name="exam_id" class="form-select form-select-sm">
+            <option value="">All Examinations</option>
+            {% for e in examinations %}
+              <option value="{{ e.exam_id }}" {% if selected_exam == e.exam_id %}selected{% endif %}>
+                {{ e.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {% if user_role != 'student' %}
+          <div class="col-md-3">
+            <input type="text" name="student_id" class="form-control form-select-sm" placeholder="Filter by Student ID..." value="{{ selected_student }}">
+          </div>
+        {% endif %}
+
+        <div class="col-md-2 d-flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Filter</button>
+          {% if selected_course or selected_exam or selected_student %}
+            <a href="{% url 'academics:marks_view' %}" class="btn btn-outline-secondary btn-sm">Reset</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-4">
+      <div class="card stat-card p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Total Records</div>
+            <div class="stat-number">{{ total_records }}</div>
+          </div>
+          <div class="stat-icon"><i class="fa-solid fa-list-check"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="card stat-card p-3" style="border-left-color: #10b981;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Class Average</div>
+            <div class="stat-number text-success">{{ avg_pct }}%</div>
+          </div>
+          <div class="stat-icon" style="background-color: #e7f8f2; color: #10b981;">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="card stat-card p-3" style="border-left-color: #0081cf;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Highest Score</div>
+            <div class="stat-number text-primary">{{ highest_pct }}%</div>
+          </div>
+          <div class="stat-icon" style="background-color: #eaf1fb; color: #0081cf;">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marks Table -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3">
+      <span class="fw-bold"><i class="fa-solid fa-award text-primary me-2"></i> Published Examination Records</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-custom mb-0">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Subject</th>
+              <th>Examination</th>
+              <th>Marks Scored</th>
+              <th>Max Marks</th>
+              <th>Percentage</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in marks_list %}
+              <tr>
+                <td><strong>{{ m.student_id }}</strong></td>
+                <td>{{ m.student_name }}</td>
+                <td>
+                  <strong>{{ m.course_id }}</strong>
+                  <div class="text-muted small">{{ m.subject }}</div>
+                </td>
+                <td><small>{{ m.examination_name }}</small></td>
+                <td><strong class="text-primary">{{ m.marks_obtained }}</strong></td>
+                <td>{{ m.maximum_marks }}</td>
+                <td><strong>{{ m.percentage }}%</strong></td>
+                <td>
+                  {% if m.status == 'Pass' %}
+                    <span class="badge bg-success px-2 py-1"><i class="fa-solid fa-check me-1"></i> Pass</span>
+                  {% else %}
+                    <span class="badge bg-danger px-2 py-1"><i class="fa-solid fa-xmark me-1"></i> Fail</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="8" class="text-center py-5 text-muted">
+                  <i class="fa-solid fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
+                  No examination marks found matching the criteria.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

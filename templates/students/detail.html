@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Details - {{ student.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Top Actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">{{ student.name }}</h3>
+      <div class="text-muted small">
+        <span class="me-3">ID: <strong>{{ student.student_id }}</strong></span>
+        <span>Roll No: <strong>{{ student.roll_no }}</strong></span>
+      </div>
+    </div>
+    <div>
+      <a href="{% url 'students:list' %}" class="btn btn-outline-secondary btn-sm me-2">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back
+      </a>
+      {% if user_role == 'admin' %}
+        <a href="{% url 'students:edit' student.student_id %}" class="btn btn-outline-primary btn-sm me-2">
+          <i class="fa-solid fa-pen me-1"></i> Edit
+        </a>
+        <a href="{% url 'students:delete' student.student_id %}" class="btn btn-outline-danger btn-sm">
+          <i class="fa-solid fa-trash me-1"></i> Delete
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <!-- Academic Profile Card -->
+    <div class="col-lg-5">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-white">
+          <span class="fw-bold"><i class="fa-solid fa-id-card text-primary me-2"></i> Profile &amp; Enrollment</span>
+        </div>
+        <div class="card-body p-4">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Student ID</span>
+              <strong>{{ student.student_id }}</strong>
+            </div>
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Roll Number</span>
+              <code>{{ student.roll_no }}</code>
+            </div>
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Email</span>
+              <span>{{ student.email }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Department</span>
+              <span>{{ student.department }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Semester</span>
+              <span class="badge bg-light text-dark border">Semester {{ student.semester }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Academic Year</span>
+              <span>{{ student.academic_year }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Admission Year</span>
+              <span>{{ student.admission_year }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Account Status</span>
+              {% if student.account_status == 'Active' %}
+                <span class="badge bg-success">Active</span>
+              {% else %}
+                <span class="badge bg-secondary">Inactive</span>
+              {% endif %}
+            </div>
+            <div class="list-group-item d-flex justify-content-between px-0">
+              <span class="text-muted">Phone</span>
+              <span>{{ student.phone|default:"N/A" }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance Performance Summary -->
+    <div class="col-lg-7">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <span class="fw-bold"><i class="fa-solid fa-chart-pie text-primary me-2"></i> Attendance Overview</span>
+          <span class="badge {% if attendance_pct >= 75 %}bg-success{% elif attendance_pct >= 65 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
+            {{ attendance_pct }}%
+          </span>
+        </div>
+        <div class="card-body p-4">
+          <div class="row text-center mb-3">
+            <div class="col-4">
+              <div class="p-2 border rounded bg-light">
+                <small class="text-muted d-block">Conducted</small>
+                <h5 class="fw-bold mb-0">{{ total_classes }}</h5>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 border rounded bg-light">
+                <small class="text-muted d-block">Attended</small>
+                <h5 class="fw-bold text-success mb-0">{{ attended_classes }}</h5>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 border rounded bg-light">
+                <small class="text-muted d-block">Absent</small>
+                <h5 class="fw-bold text-danger mb-0">{{ total_classes|add:"-"|add:attended_classes }}</h5>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="fw-bold mt-4 mb-2 small text-uppercase text-muted">Attendance History Log</h6>
+          <div class="table-responsive" style="max-height: 250px;">
+            <table class="table table-sm table-hover table-custom">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Course</th>
+                  <th>Status</th>
+                  <th>Marked By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in attendance_records %}
+                  <tr>
+                    <td><small>{{ r.date }}</small></td>
+                    <td>{{ r.course_id }}</td>
+                    <td>
+                      {% if r.status == 'Present' %}
+                        <span class="badge bg-success">Present</span>
+                      {% else %}
+                        <span class="badge bg-danger">Absent</span>
+                      {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ r.marked_by }}</small></td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center py-3 text-muted">No attendance logs available.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Examination Results Table -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white">
+      <span class="fw-bold"><i class="fa-solid fa-square-poll-vertical text-primary me-2"></i> Examination Scores</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-custom mb-0">
+          <thead>
+            <tr>
+              <th>Examination</th>
+              <th>Subject</th>
+              <th>Marks Scored</th>
+              <th>Maximum</th>
+              <th>Percentage</th>
+              <th>Result Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in marks_records %}
+              <tr>
+                <td><strong>{{ m.examination_name }}</strong></td>
+                <td>{{ m.subject }} <small class="text-muted">({{ m.course_id }})</small></td>
+                <td><strong class="text-primary">{{ m.marks_obtained }}</strong></td>
+                <td>{{ m.maximum_marks }}</td>
+                <td><strong>{{ m.percentage }}%</strong></td>
+                <td>
+                  {% if m.status == 'Pass' %}
+                    <span class="badge bg-success">Pass</span>
+                  {% else %}
+                    <span class="badge bg-danger">Fail</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">No examination scores recorded.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

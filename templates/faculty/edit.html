@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Faculty - {{ faculty.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-9 mx-auto">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon me-3">
+              <i class="fa-solid fa-user-pen text-primary fs-4"></i>
+            </div>
+            <div>
+              <h5 class="mb-0 fw-bold">Edit Faculty Member</h5>
+              <small class="text-muted">Staff ID: <strong>{{ faculty.faculty_id }}</strong></small>
+            </div>
+          </div>
+          <a href="{% url 'faculty:detail' faculty.faculty_id %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Cancel
+          </a>
+        </div>
+
+        <div class="card-body p-4">
+          <form method="POST" action="{% url 'faculty:edit' faculty.faculty_id %}">
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Faculty ID</label>
+                <input type="text" class="form-control bg-light" value="{{ faculty.faculty_id }}" disabled readonly>
+              </div>
+
+              <div class="col-md-6">
+                <label for="name" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ faculty.name }}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="email" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ faculty.email }}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="department" class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
+                <select class="form-select" id="department" name="department" required>
+                  {% for d in departments %}
+                    <option value="{{ d.name }}" {% if faculty.department == d.name %}selected{% endif %}>{{ d.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label for="designation" class="form-label fw-semibold">Designation <span class="text-danger">*</span></label>
+                <select class="form-select" id="designation" name="designation" required>
+                  <option value="Professor" {% if faculty.designation == 'Professor' %}selected{% endif %}>Professor</option>
+                  <option value="Associate Professor" {% if faculty.designation == 'Associate Professor' %}selected{% endif %}>Associate Professor</option>
+                  <option value="Assistant Professor" {% if faculty.designation == 'Assistant Professor' %}selected{% endif %}>Assistant Professor</option>
+                  <option value="Lecturer" {% if faculty.designation == 'Lecturer' %}selected{% endif %}>Lecturer</option>
+                  <option value="HOD" {% if faculty.designation == 'HOD' %}selected{% endif %}>Head of Department (HOD)</option>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label for="joining_year" class="form-label fw-semibold">Joining Year</label>
+                <input type="number" class="form-control" id="joining_year" name="joining_year" value="{{ faculty.joining_year }}">
+              </div>
+
+              <div class="col-md-3">
+                <label for="phone" class="form-label fw-semibold">Phone</label>
+                <input type="text" class="form-control" id="phone" name="phone" value="{{ faculty.phone|default:'' }}">
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label fw-semibold">Assigned Courses / Subjects</label>
+                <div class="p-3 bg-light rounded">
+                  <div class="row g-2">
+                    {% for c in courses %}
+                      <div class="col-md-6">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" name="assigned_subjects" value="{{ c.course_code }}" id="course_{{ c.course_code }}"
+                            {% if c.course_code in faculty.assigned_subjects %}checked{% endif %}>
+                          <label class="form-check-label" for="course_{{ c.course_code }}">
+                            <strong>{{ c.course_code }}</strong> - {{ c.name }} <small class="text-muted">({{ c.department }})</small>
+                          </label>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="account_status" class="form-label fw-semibold">Account Status</label>
+                <select class="form-select" id="account_status" name="account_status">
+                  <option value="Active" {% if faculty.account_status == 'Active' %}selected{% endif %}>Active</option>
+                  <option value="Inactive" {% if faculty.account_status == 'Inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <a href="{% url 'faculty:detail' faculty.faculty_id %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Update Faculty
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Course - {{ course.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-7 mx-auto">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-bold">Edit Course: {{ course.course_code }}</h5>
+          <a href="{% url 'academics:course_list' %}" class="btn btn-outline-secondary btn-sm">Cancel</a>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{% url 'academics:course_edit' course.course_code %}">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Course Code</label>
+              <input type="text" class="form-control bg-light" value="{{ course.course_code }}" disabled readonly>
+            </div>
+
+            <div class="mb-3">
+              <label for="name" class="form-label fw-semibold">Course Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="name" name="name" value="{{ course.name }}" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="department" class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
+              <select class="form-select" id="department" name="department" required>
+                {% for d in departments %}
+                  <option value="{{ d.name }}" {% if course.department == d.name %}selected{% endif %}>{{ d.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label for="semester" class="form-label fw-semibold">Semester <span class="text-danger">*</span></label>
+                <select class="form-select" id="semester" name="semester" required>
+                  {% for s in "12345678" %}
+                    <option value="{{ s }}" {% if course.semester|stringformat:"s" == s %}selected{% endif %}>Semester {{ s }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="credits" class="form-label fw-semibold">Credits</label>
+                <input type="number" class="form-control" id="credits" name="credits" value="{{ course.credits|default:'3' }}" min="1" max="10">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="faculty_id" class="form-label fw-semibold">Assigned Faculty</label>
+              <select class="form-select" id="faculty_id" name="faculty_id">
+                <option value="">-- Unassigned --</option>
+                {% for f in faculty_members %}
+                  <option value="{{ f.faculty_id }}" {% if course.faculty_id == f.faculty_id %}selected{% endif %}>
+                    {{ f.name }} ({{ f.faculty_id }} - {{ f.department }})
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <a href="{% url 'academics:course_list' %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary px-4">Update Course</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

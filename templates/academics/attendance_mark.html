@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">Class Attendance Recording</h3>
+      <p class="text-muted mb-0 small">Select a course and session date to record or update student attendance.</p>
+    </div>
+    <a href="{% url 'academics:attendance_view' %}" class="btn btn-outline-primary btn-sm">
+      <i class="fa-solid fa-chart-pie me-1"></i> View Attendance History
+    </a>
+  </div>
+
+  <!-- Selection Form Card -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-body p-4">
+      <form method="GET" action="{% url 'academics:attendance_mark' %}" class="row g-3 align-items-end">
+        <div class="col-md-6">
+          <label for="course_id" class="form-label fw-semibold">Select Course / Subject <span class="text-danger">*</span></label>
+          <select name="course_id" id="course_id" class="form-select" required>
+            <option value="">-- Choose Course --</option>
+            {% for c in courses %}
+              <option value="{{ c.course_code }}" {% if selected_course_code == c.course_code %}selected{% endif %}>
+                {{ c.course_code }} - {{ c.name }} (Sem {{ c.semester }} &bull; {{ c.department }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label for="date" class="form-label fw-semibold">Session Date <span class="text-danger">*</span></label>
+          <input type="date" name="date" id="date" class="form-control" value="{{ selected_date }}" required>
+        </div>
+
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fa-solid fa-users-viewfinder me-1"></i> Load Students
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Student Attendance Roster -->
+  {% if selected_course %}
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+          <h5 class="fw-bold mb-0 text-primary">{{ selected_course.name }} ({{ selected_course.course_code }})</h5>
+          <small class="text-muted">
+            Department: <strong>{{ selected_course.department }}</strong> &bull; Semester: <strong>{{ selected_course.semester }}</strong> &bull; Date: <strong>{{ selected_date }}</strong>
+          </small>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-success btn-sm" id="markAllPresent">
+            <i class="fa-solid fa-check-double me-1"></i> All Present
+          </button>
+          <button type="button" class="btn btn-outline-danger btn-sm" id="markAllAbsent">
+            <i class="fa-solid fa-xmark me-1"></i> All Absent
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <form method="POST" action="{% url 'academics:attendance_mark' %}">
+          {% csrf_token %}
+          <input type="hidden" name="course_id" value="{{ selected_course_code }}">
+          <input type="hidden" name="date" value="{{ selected_date }}">
+
+          <div class="table-responsive">
+            <table class="table table-hover table-custom mb-0">
+              <thead>
+                <tr>
+                  <th style="width: 15%;">Roll Number</th>
+                  <th style="width: 15%;">Student ID</th>
+                  <th style="width: 40%;">Student Name</th>
+                  <th style="width: 30%;" class="text-center">Attendance Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for student in enrolled_students %}
+                  <tr>
+                    <td><code>{{ student.roll_no }}</code></td>
+                    <td><strong>{{ student.student_id }}</strong></td>
+                    <td>{{ student.name }}</td>
+                    <td class="text-center">
+                      <div class="btn-group" role="group" aria-label="Attendance Status">
+                        <input type="radio" class="btn-check" name="status_{{ student.student_id }}" id="present_{{ student.student_id }}" value="Present" {% if student.attendance_status == 'Present' %}checked{% endif %}>
+                        <label class="btn btn-outline-success btn-sm px-3" for="present_{{ student.student_id }}">
+                          <i class="fa-solid fa-check me-1"></i> Present
+                        </label>
+
+                        <input type="radio" class="btn-check" name="status_{{ student.student_id }}" id="absent_{{ student.student_id }}" value="Absent" {% if student.attendance_status == 'Absent' %}checked{% endif %}>
+                        <label class="btn btn-outline-danger btn-sm px-3" for="absent_{{ student.student_id }}">
+                          <i class="fa-solid fa-xmark me-1"></i> Absent
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">
+                      No students are enrolled in {{ selected_course.department }} for Semester {{ selected_course.semester }}.
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% if enrolled_students %}
+            <div class="card-footer bg-white p-3 d-flex justify-content-between align-items-center">
+              <span class="text-muted small">
+                <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+                Saving attendance will securely update or create the session records in MongoDB.
+              </span>
+              <button type="submit" name="submit_attendance" value="1" class="btn btn-primary px-4 fw-semibold">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Save Attendance
+              </button>
+            </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  {% else %}
+    <div class="card shadow-sm border-0 text-center py-5">
+      <div class="card-body">
+        <i class="fa-solid fa-calendar-days fa-3x text-secondary mb-3"></i>
+        <h5>Select a Course to Begin</h5>
+        <p class="text-muted small">Choose the course and session date from the dropdown above to load the student class list.</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

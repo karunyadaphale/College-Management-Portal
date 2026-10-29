@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Faculty Member - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-9 mx-auto">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon me-3">
+              <i class="fa-solid fa-user-tie text-primary fs-4"></i>
+            </div>
+            <div>
+              <h5 class="mb-0 fw-bold">Add New Faculty Member</h5>
+              <small class="text-muted">Register academic instructors and assign subjects</small>
+            </div>
+          </div>
+          <a href="{% url 'faculty:list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to List
+          </a>
+        </div>
+
+        <div class="card-body p-4">
+          <form method="POST" action="{% url 'faculty:add' %}">
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <!-- Faculty ID -->
+              <div class="col-md-6">
+                <label for="faculty_id" class="form-label fw-semibold">Faculty ID <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="faculty_id" name="faculty_id" placeholder="e.g. FAC003" value="{{ form_data.faculty_id|default:'' }}" required>
+                <small class="text-muted">Unique staff ID</small>
+              </div>
+
+              <!-- Full Name -->
+              <div class="col-md-6">
+                <label for="name" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="e.g. Dr. Sunita Patil" value="{{ form_data.name|default:'' }}" required>
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-6">
+                <label for="email" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="e.g. sunita.patil@college.edu" value="{{ form_data.email|default:'' }}" required>
+              </div>
+
+              <!-- Department -->
+              <div class="col-md-6">
+                <label for="department" class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
+                <select class="form-select" id="department" name="department" required>
+                  <option value="">Select Department</option>
+                  {% for d in departments %}
+                    <option value="{{ d.name }}" {% if form_data.department == d.name %}selected{% endif %}>{{ d.name }} ({{ d.code }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- Designation -->
+              <div class="col-md-6">
+                <label for="designation" class="form-label fw-semibold">Designation <span class="text-danger">*</span></label>
+                <select class="form-select" id="designation" name="designation" required>
+                  <option value="Professor">Professor</option>
+                  <option value="Associate Professor" selected>Associate Professor</option>
+                  <option value="Assistant Professor">Assistant Professor</option>
+                  <option value="Lecturer">Lecturer</option>
+                  <option value="HOD">Head of Department (HOD)</option>
+                </select>
+              </div>
+
+              <!-- Joining Year -->
+              <div class="col-md-3">
+                <label for="joining_year" class="form-label fw-semibold">Joining Year</label>
+                <input type="number" class="form-control" id="joining_year" name="joining_year" value="2022" min="1990" max="2030">
+              </div>
+
+              <!-- Phone -->
+              <div class="col-md-3">
+                <label for="phone" class="form-label fw-semibold">Phone Number</label>
+                <input type="text" class="form-control" id="phone" name="phone" placeholder="+91 98765 00000" value="{{ form_data.phone|default:'' }}">
+              </div>
+
+              <!-- Assigned Subjects -->
+              <div class="col-md-12">
+                <label class="form-label fw-semibold">Assign Courses / Subjects</label>
+                <div class="p-3 bg-light rounded">
+                  <div class="row g-2">
+                    {% for c in courses %}
+                      <div class="col-md-6">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" name="assigned_subjects" value="{{ c.course_code }}" id="course_{{ c.course_code }}">
+                          <label class="form-check-label" for="course_{{ c.course_code }}">
+                            <strong>{{ c.course_code }}</strong> - {{ c.name }} <small class="text-muted">({{ c.department }})</small>
+                          </label>
+                        </div>
+                      </div>
+                    {% empty %}
+                      <div class="text-muted small">No courses registered in system. Add courses first.</div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Account Status & Password -->
+              <div class="col-md-6">
+                <label for="account_status" class="form-label fw-semibold">Account Status</label>
+                <select class="form-select" id="account_status" name="account_status">
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label for="password" class="form-label fw-semibold">Default Portal Password</label>
+                <input type="text" class="form-control" id="password" name="password" value="Faculty@123">
+                <small class="text-muted">Faculty login username is their Faculty ID in lowercase.</small>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <a href="{% url 'faculty:list' %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Save Faculty
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

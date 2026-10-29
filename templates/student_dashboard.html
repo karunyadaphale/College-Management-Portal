@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Student Profile Hero Card -->
+  <div class="card bg-white shadow-sm mb-4 border-0">
+    <div class="card-body p-4">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon me-3 bg-light rounded-circle" style="width: 64px; height: 64px;">
+              <i class="fa-solid fa-user-graduate text-primary fs-2"></i>
+            </div>
+            <div>
+              <h4 class="fw-bold mb-1">{{ student.name }}</h4>
+              <div class="text-muted small">
+                <span class="me-3"><i class="fa-solid fa-id-badge me-1 text-primary"></i> ID: <strong>{{ student.student_id }}</strong></span>
+                <span class="me-3"><i class="fa-solid fa-hashtag me-1 text-primary"></i> Roll No: <strong>{{ student.roll_no }}</strong></span>
+                <span><i class="fa-solid fa-building-columns me-1 text-primary"></i> Dept: <strong>{{ student.department }}</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+          <span class="badge bg-light text-dark border p-2 me-2">Semester {{ student.semester }}</span>
+          <span class="badge bg-light text-dark border p-2">{{ student.academic_year }}</span>
+          <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary btn-sm ms-2">Full Profile</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Academic Metrics -->
+  <div class="row g-3 mb-4">
+    <!-- Overall Attendance Card -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card stat-card p-3 h-100" style="border-left-color: {% if attendance_percentage >= 75 %}#10b981{% elif attendance_percentage >= 65 %}#f59e0b{% else %}#ef4444{% endif %};">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="stat-label">Overall Attendance</div>
+          <div class="stat-icon" style="background-color: #f0f5fc;">
+            <i class="fa-solid fa-calendar-check text-primary"></i>
+          </div>
+        </div>
+        <div class="stat-number mb-1">{{ attendance_percentage }}%</div>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar {% if attendance_percentage >= 75 %}bg-success{% elif attendance_percentage >= 65 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ attendance_percentage }}%;" aria-valuenow="{{ attendance_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <small class="text-muted">{{ attended_classes }} attended out of {{ total_classes }} classes conducted</small>
+      </div>
+    </div>
+
+    <!-- Exam Marks Summary Card -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card stat-card p-3 h-100" style="border-left-color: #2c73d2;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="stat-label">Examination Performance</div>
+          <div class="stat-icon" style="background-color: #f0f5fc;">
+            <i class="fa-solid fa-chart-column text-primary"></i>
+          </div>
+        </div>
+        <div class="stat-number mb-1">{{ overall_marks_percentage }}%</div>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar bg-primary" role="progressbar" style="width: {{ overall_marks_percentage }}%;" aria-valuenow="{{ overall_marks_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <small class="text-muted">{{ total_marks_obtained|floatformat:1 }} / {{ total_max_marks|floatformat:1 }} aggregate marks scored</small>
+      </div>
+    </div>
+
+    <!-- Enrolled Subjects Card -->
+    <div class="col-md-12 col-lg-4">
+      <div class="card stat-card p-3 h-100" style="border-left-color: #0081cf;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="stat-label">Enrolled Subjects</div>
+          <div class="stat-icon" style="background-color: #f0f5fc;">
+            <i class="fa-solid fa-book-open text-primary"></i>
+          </div>
+        </div>
+        <div class="stat-number mb-1">{{ enrolled_courses|length }}</div>
+        <p class="small text-muted mb-0">Courses currently registered for Semester {{ student.semester }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subject-wise Attendance & Marks -->
+  <div class="row g-4 mb-4">
+    <!-- Subject-Wise Attendance Breakdown -->
+    <div class="col-lg-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <span class="fw-bold"><i class="fa-solid fa-list-check text-primary me-2"></i> Course-wise Attendance</span>
+          <a href="{% url 'academics:attendance_view' %}" class="btn btn-sm btn-outline-primary">History</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-custom mb-0">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Classes</th>
+                  <th>Attended</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sub in subject_attendance_list %}
+                  <tr>
+                    <td>
+                      <strong>{{ sub.course_id }}</strong>
+                      <div class="text-muted small">{{ sub.course_name }}</div>
+                    </td>
+                    <td>{{ sub.total }}</td>
+                    <td>{{ sub.attended }}</td>
+                    <td>
+                      <span class="badge {% if sub.percentage >= 75 %}bg-success{% elif sub.percentage >= 65 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                        {{ sub.percentage }}%
+                      </span>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">No attendance sessions recorded yet.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Examination Results -->
+    <div class="col-lg-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <span class="fw-bold"><i class="fa-solid fa-square-poll-vertical text-primary me-2"></i> Examination Marks</span>
+          <a href="{% url 'academics:marks_view' %}" class="btn btn-sm btn-outline-primary">Details</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-custom mb-0">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Exam</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for m in student_marks %}
+                  <tr>
+                    <td>
+                      <strong>{{ m.course_id }}</strong>
+                      <div class="text-muted small">{{ m.subject }}</div>
+                    </td>
+                    <td><small>{{ m.examination_name }}</small></td>
+                    <td>
+                      <strong>{{ m.marks_obtained }}</strong> / {{ m.maximum_marks }}
+                      <span class="text-muted small">({{ m.percentage }}%)</span>
+                    </td>
+                    <td>
+                      {% if m.status == 'Pass' %}
+                        <span class="badge bg-success">Pass</span>
+                      {% else %}
+                        <span class="badge bg-danger">Fail</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">No examination marks published yet.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announcements -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white">
+      <span class="fw-bold"><i class="fa-solid fa-bullhorn text-warning me-2"></i> Recent Announcements</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="list-group list-group-flush">
+        {% for a in recent_announcements %}
+          <div class="list-group-item p-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h6 class="mb-0 fw-semibold text-primary">{{ a.title }}</h6>
+              <span class="badge bg-light text-muted border">{{ a.publication_date }}</span>
+            </div>
+            <p class="text-muted small mb-1">{{ a.description }}</p>
+            <small class="text-secondary" style="font-size: 0.75rem;">Category: {{ a.category }} &bull; Author: {{ a.author }}</small>
+          </div>
+        {% empty %}
+          <div class="p-4 text-center text-muted">No announcements posted.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

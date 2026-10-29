@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon me-3">
+              <i class="fa-solid fa-id-card text-primary fs-3"></i>
+            </div>
+            <div>
+              <h5 class="mb-0 fw-bold">{{ current_user.name }}</h5>
+              <span class="badge bg-primary text-uppercase">{{ current_user.role }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-4">
+          <h6 class="fw-bold text-muted text-uppercase mb-3" style="letter-spacing: 0.5px;">Account Information</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded">
+                <small class="text-muted d-block">Username</small>
+                <strong>{{ request.session.username }}</strong>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded">
+                <small class="text-muted d-block">Email Address</small>
+                <strong>{{ current_user.email }}</strong>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded">
+                <small class="text-muted d-block">System Identifier (ID)</small>
+                <strong>{{ request.session.profile_id|default:"N/A" }}</strong>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded">
+                <small class="text-muted d-block">Portal Role</small>
+                <strong class="text-capitalize">{{ current_user.role }}</strong>
+              </div>
+            </div>
+          </div>
+
+          {% if role == 'student' and profile_data %}
+            <h6 class="fw-bold text-muted text-uppercase mb-3" style="letter-spacing: 0.5px;">Academic Information</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <small class="text-muted d-block">Roll Number</small>
+                  <strong>{{ profile_data.roll_no }}</strong>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <small class="text-muted d-block">Department</small>
+                  <strong>{{ profile_data.department }}</strong>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-3 bg-light rounded">
+                  <small class="text-muted d-block">Current Semester</small>
+                  <strong>Semester {{ profile_data.semester }}</strong>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-3 bg-light rounded">
+                  <small class="text-muted d-block">Academic Year</small>
+                  <strong>{{ profile_data.academic_year }}</strong>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-3 bg-light rounded">
+                  <small class="text-muted d-block">Admission Year</small>
+                  <strong>{{ profile_data.admission_year }}</strong>
+                </div>
+              </div>
+            </div>
+          {% elif role == 'faculty' and profile_data %}
+            <h6 class="fw-bold text-muted text-uppercase mb-3" style="letter-spacing: 0.5px;">Faculty Details</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <small class="text-muted d-block">Department</small>
+                  <strong>{{ profile_data.department }}</strong>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <small class="text-muted d-block">Designation</small>
+                  <strong>{{ profile_data.designation }}</strong>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <small class="text-muted d-block">Assigned Subjects</small>
+                  {% for s in profile_data.assigned_subjects %}
+                    <span class="badge bg-secondary me-1">{{ s }}</span>
+                  {% empty %}
+                    <span class="text-muted">None assigned</span>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 bg-light rounded">
+                  <small class="text-muted d-block">Joining Year</small>
+                  <strong>{{ profile_data.joining_year }}</strong>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

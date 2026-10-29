@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center py-4">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-primary text-white text-center py-4 rounded-top">
+        <i class="fa-solid fa-graduation-cap fa-3x mb-2 text-warning"></i>
+        <h4 class="fw-bold mb-1">College Portal Login</h4>
+        <p class="small text-white-50 mb-0">Sign in to access your academic dashboard</p>
+      </div>
+
+      <div class="card-body p-4">
+        <form method="POST" action="{% url 'accounts:login' %}" autocomplete="off">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="username" class="form-label fw-semibold">Username or Email</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-user"></i></span>
+              <input type="text" class="form-control" id="username" name="username" value="{{ username|default:'' }}" placeholder="e.g. admin, fac001, stu001" required autofocus>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="password" class="form-label fw-semibold">Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+            <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Log In
+          </button>
+        </form>
+
+        <!-- Quick Demo Credentials Box for Viva & Presentation -->
+        <div class="mt-4 pt-3 border-top">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted small fw-bold text-uppercase"><i class="fa-solid fa-key me-1 text-warning"></i> Quick Demo Fill (Viva Mode)</span>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm btn-demo-fill" data-username="admin" data-password="Admin@123">
+              <i class="fa-solid fa-shield me-1 text-primary"></i> Admin
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm btn-demo-fill" data-username="fac001" data-password="Faculty@123">
+              <i class="fa-solid fa-chalkboard-user me-1 text-info"></i> Faculty (CS)
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm btn-demo-fill" data-username="stu001" data-password="Student@123">
+              <i class="fa-solid fa-user-graduate me-1 text-success"></i> Student (Aarav)
+            </button>
+          </div>
+          <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+            Click any button above to pre-populate credentials quickly during viva presentation.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

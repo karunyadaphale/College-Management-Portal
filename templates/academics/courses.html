@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Courses &amp; Subjects - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">Academic Courses &amp; Subjects</h3>
+      <p class="text-muted mb-0 small">Manage curriculum, subject allocations, and faculty assignments.</p>
+    </div>
+    {% if user_role == 'admin' %}
+      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+        <i class="fa-solid fa-plus me-1"></i> Add Course
+      </button>
+    {% endif %}
+  </div>
+
+  <!-- Filter -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body p-3">
+      <form method="GET" action="{% url 'academics:course_list' %}" class="row g-2 align-items-center">
+        <div class="col-md-8">
+          <select name="department" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="">All Departments</option>
+            {% for d in departments %}
+              <option value="{{ d.name }}" {% if selected_department == d.name %}selected{% endif %}>{{ d.name }} ({{ d.code }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Filter</button>
+          {% if selected_department %}
+            <a href="{% url 'academics:course_list' %}" class="btn btn-outline-secondary btn-sm">Reset</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Course Table -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-custom mb-0">
+          <thead>
+            <tr>
+              <th>Course Code</th>
+              <th>Course / Subject Name</th>
+              <th>Department</th>
+              <th>Semester</th>
+              <th>Credits</th>
+              <th>Assigned Faculty</th>
+              {% if user_role == 'admin' %}
+                <th class="text-end">Actions</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in courses %}
+              <tr>
+                <td><strong class="text-primary">{{ c.course_code }}</strong></td>
+                <td>
+                  <strong>{{ c.name }}</strong>
+                </td>
+                <td><span class="badge bg-light text-dark border">{{ c.department }}</span></td>
+                <td>Semester {{ c.semester }}</td>
+                <td>{{ c.credits|default:"3" }}</td>
+                <td>
+                  {% if c.faculty_name and c.faculty_name != "Unassigned" %}
+                    <span class="badge bg-light text-primary border"><i class="fa-solid fa-user-check me-1"></i> {{ c.faculty_name }}</span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark"><i class="fa-solid fa-user-slash me-1"></i> Unassigned</span>
+                  {% endif %}
+                </td>
+                {% if user_role == 'admin' %}
+                  <td class="text-end">
+                    <a href="{% url 'academics:course_edit' c.course_code %}" class="btn btn-xs btn-outline-secondary btn-sm py-0 px-2 me-1">
+                      <i class="fa-solid fa-pen"></i>
+                    </a>
+                    <form method="POST" action="{% url 'academics:course_delete' c.course_code %}" class="d-inline" onsubmit="return confirm('Delete course {{ c.course_code }}?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-xs btn-outline-danger btn-sm py-0 px-2">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                {% endif %}
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                  No courses found for the selected filter.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Course Modal -->
+{% if user_role == 'admin' %}
+<div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'academics:course_add' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="addCourseModalLabel">Add New Course / Subject</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label for="course_code" class="form-label fw-semibold">Course Code <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="course_code" name="course_code" placeholder="e.g. CS103, EE102" required>
+          </div>
+          <div class="mb-3">
+            <label for="course_name" class="form-label fw-semibold">Course Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="course_name" name="name" placeholder="e.g. Operating Systems" required>
+          </div>
+          <div class="mb-3">
+            <label for="course_dept" class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
+            <select class="form-select" id="course_dept" name="department" required>
+              <option value="">Select Department</option>
+              {% for d in departments %}
+                <option value="{{ d.name }}">{{ d.name }} ({{ d.code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label for="course_sem" class="form-label fw-semibold">Semester <span class="text-danger">*</span></label>
+              <select class="form-select" id="course_sem" name="semester" required>
+                {% for s in "12345678" %}
+                  <option value="{{ s }}" {% if s == '3' %}selected{% endif %}>Semester {{ s }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6">
+              <label for="course_credits" class="form-label fw-semibold">Credits</label>
+              <input type="number" class="form-control" id="course_credits" name="credits" value="4" min="1" max="10">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="course_fac" class="form-label fw-semibold">Assign Faculty</label>
+            <select class="form-select" id="course_fac" name="faculty_id">
+              <option value="">-- Leave Unassigned --</option>
+              {% for f in faculty_members %}
+                <option value="{{ f.faculty_id }}">{{ f.name }} ({{ f.faculty_id }} - {{ f.department }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

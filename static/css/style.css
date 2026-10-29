@@ -1,0 +1,234 @@
+/* College Management Portal - Professional Blue & White Theme */
+
+:root {
+  --primary-blue: #1a4f8b;
+  --secondary-blue: #2c73d2;
+  --light-blue: #f0f5fc;
+  --accent-blue: #0081cf;
+  --dark-navy: #0f2b48;
+  --text-dark: #2d3748;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --card-bg: #ffffff;
+  --sidebar-width: 260px;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--text-dark);
+  background-color: #f8fafc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar */
+.navbar-custom {
+  background: linear-gradient(135deg, var(--dark-navy) 0%, var(--primary-blue) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ffffff !important;
+}
+
+/* Layout container */
+.app-container {
+  display: flex;
+  flex: 1;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background: #ffffff;
+  border-right: 1px solid var(--border-color);
+  min-height: calc(100vh - 62px);
+  padding: 1.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-link {
+  color: #4a5568;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.sidebar .nav-link i {
+  width: 24px;
+  margin-right: 10px;
+  font-size: 1.1rem;
+  color: var(--secondary-blue);
+}
+
+.sidebar .nav-link:hover {
+  background-color: var(--light-blue);
+  color: var(--primary-blue);
+}
+
+.sidebar .nav-link.active {
+  background-color: var(--primary-blue);
+  color: #ffffff;
+}
+
+.sidebar .nav-link.active i {
+  color: #ffffff;
+}
+
+.sidebar-heading {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: #94a3b8;
+  padding: 0.75rem 1rem 0.25rem;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f8fafc;
+  overflow-y: auto;
+}
+
+/* Cards */
+.card {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  background: #ffffff;
+}
+
+.card-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+}
+
+/* Stat Cards */
+.stat-card {
+  border-left: 4px solid var(--primary-blue);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+}
+
+.stat-card .stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background-color: var(--light-blue);
+  color: var(--primary-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.stat-card .stat-number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--dark-navy);
+}
+
+.stat-card .stat-label {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Tables */
+.table-custom {
+  margin-bottom: 0;
+}
+
+.table-custom thead th {
+  background-color: var(--light-blue);
+  color: var(--dark-navy);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.85rem 1rem;
+}
+
+.table-custom tbody td {
+  padding: 0.85rem 1rem;
+  vertical-align: middle;
+}
+
+.table-custom tbody tr:hover {
+  background-color: #fbfdff;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--dark-navy);
+  border-color: var(--dark-navy);
+}
+
+.btn-outline-primary {
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+/* Badges */
+.badge-role {
+  padding: 0.4em 0.8em;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+/* Attendance percentage progress */
+.progress-attendance {
+  height: 10px;
+  border-radius: 5px;
+}
+
+/* Footer */
+.footer {
+  background: #ffffff;
+  border-top: 1px solid var(--border-color);
+  padding: 1rem 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .app-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .main-content {
+    padding: 1.25rem;
+  }
+}

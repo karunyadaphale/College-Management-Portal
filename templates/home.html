@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+  <!-- Hero Section -->
+  <div class="p-5 mb-4 rounded-3 text-white" style="background: linear-gradient(135deg, #0f2b48 0%, #1a4f8b 60%, #2c73d2 100%);">
+    <div class="container-fluid py-3">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <span class="badge bg-light text-primary mb-3 px-3 py-2 fw-semibold">PBL Academic Project</span>
+          <h1 class="display-5 fw-bold mb-3">College Management Portal</h1>
+          <p class="col-md-11 fs-5 text-light opacity-90">
+            A centralized, beginner-friendly academic platform to streamline college administration, faculty class management, student records, attendance tracking, and examination evaluation.
+          </p>
+          <div class="d-flex gap-2 mt-4">
+            <a href="{% url 'accounts:login' %}" class="btn btn-warning btn-lg px-4 fw-semibold text-dark shadow-sm">
+              <i class="fa-solid fa-right-to-bracket me-2"></i> Portal Login
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-4 text-center d-none d-lg-block">
+          <i class="fa-solid fa-building-columns fa-8x text-white-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Role Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card h-100 border-top border-4 border-primary">
+        <div class="card-body p-4 text-center">
+          <div class="stat-icon mx-auto mb-3" style="width: 56px; height: 56px;">
+            <i class="fa-solid fa-user-shield text-primary fs-3"></i>
+          </div>
+          <h5 class="card-title fw-bold">Administrator</h5>
+          <p class="card-text text-muted small">
+            Oversee student admissions, faculty recruitments, academic courses, attendance audits, examination records, and college announcements.
+          </p>
+          <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-sm">Admin Access</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card h-100 border-top border-4 border-info">
+        <div class="card-body p-4 text-center">
+          <div class="stat-icon mx-auto mb-3" style="width: 56px; height: 56px;">
+            <i class="fa-solid fa-chalkboard-user text-info fs-3"></i>
+          </div>
+          <h5 class="card-title fw-bold">Faculty Member</h5>
+          <p class="card-text text-muted small">
+            View assigned classes and subjects, record daily student attendance with duplicate protection, evaluate examination marks, and track student performance.
+          </p>
+          <a href="{% url 'accounts:login' %}" class="btn btn-outline-info btn-sm">Faculty Access</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card h-100 border-top border-4 border-success">
+        <div class="card-body p-4 text-center">
+          <div class="stat-icon mx-auto mb-3" style="width: 56px; height: 56px;">
+            <i class="fa-solid fa-user-graduate text-success fs-3"></i>
+          </div>
+          <h5 class="card-title fw-bold">Student</h5>
+          <p class="card-text text-muted small">
+            Access your personalized academic portal to view verified attendance percentages, subject-wise examination scores, courses, and department notices.
+          </p>
+          <a href="{% url 'accounts:login' %}" class="btn btn-outline-success btn-sm">Student Access</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announcements Preview Section -->
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span class="fw-bold"><i class="fa-solid fa-bullhorn text-primary me-2"></i> Latest College Announcements</span>
+      <span class="badge bg-primary">Campus Notices</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="list-group list-group-flush">
+        {% for a in announcements %}
+          <div class="list-group-item p-3">
+            <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+              <h6 class="mb-0 fw-semibold text-primary">{{ a.title }}</h6>
+              <small class="text-muted"><i class="fa-regular fa-calendar me-1"></i> {{ a.publication_date }}</small>
+            </div>
+            <p class="mb-1 text-muted small">{{ a.description }}</p>
+            <small class="text-secondary">Posted by: {{ a.author }} &bull; <span class="badge bg-secondary">{{ a.category }}</span></small>
+          </div>
+        {% empty %}
+          <div class="p-4 text-center text-muted">No announcements posted yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Architecture Info for PBL Viva -->
+  <div class="card bg-light border-0">
+    <div class="card-body p-4">
+      <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-circle-nodes me-2 text-primary"></i> System Technical Highlights</h6>
+      <div class="row text-muted small g-3">
+        <div class="col-md-4">
+          <strong>Backend Framework:</strong> Python 3.14 &amp; Django
+        </div>
+        <div class="col-md-4">
+          <strong>Database:</strong> MongoDB via PyMongo Client
+        </div>
+        <div class="col-md-4">
+          <strong>Security:</strong> Django PBKDF2 Password Hashing &amp; CSRF Protection
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

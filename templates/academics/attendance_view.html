@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Records - College Management Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">Attendance History &amp; Records</h3>
+      <p class="text-muted mb-0 small">Audit attendance tracking and automated percentage calculations.</p>
+    </div>
+    {% if user_role == 'admin' or user_role == 'faculty' %}
+      <a href="{% url 'academics:attendance_mark' %}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-calendar-check me-1"></i> Mark New Session
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Filter Card -->
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="card-body p-3">
+      <form method="GET" action="{% url 'academics:attendance_view' %}" class="row g-2 align-items-center">
+        <div class="col-md-4">
+          <select name="course_id" class="form-select form-select-sm">
+            <option value="">All Courses / Subjects</option>
+            {% for c in courses %}
+              <option value="{{ c.course_code }}" {% if selected_course == c.course_code %}selected{% endif %}>
+                {{ c.course_code }} - {{ c.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {% if user_role != 'student' %}
+          <div class="col-md-3">
+            <input type="text" name="student_id" class="form-control form-select-sm" placeholder="Search by Student ID..." value="{{ selected_student }}">
+          </div>
+        {% endif %}
+
+        <div class="col-md-3">
+          <input type="date" name="date" class="form-control form-select-sm" value="{{ selected_date }}">
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Filter</button>
+          {% if selected_course or selected_student or selected_date %}
+            <a href="{% url 'academics:attendance_view' %}" class="btn btn-outline-secondary btn-sm">Reset</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Summary Statistics Metric Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+      <div class="card stat-card p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Total Sessions</div>
+            <div class="stat-number">{{ total_classes }}</div>
+          </div>
+          <div class="stat-icon"><i class="fa-solid fa-list-ol"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="card stat-card p-3" style="border-left-color: #10b981;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Present Count</div>
+            <div class="stat-number text-success">{{ attended_count }}</div>
+          </div>
+          <div class="stat-icon" style="background-color: #e7f8f2; color: #10b981;">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="card stat-card p-3" style="border-left-color: #ef4444;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Absent Count</div>
+            <div class="stat-number text-danger">{{ absent_count }}</div>
+          </div>
+          <div class="stat-icon" style="background-color: #fef2f2; color: #ef4444;">
+            <i class="fa-solid fa-user-xmark"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+      <div class="card stat-card p-3" style="border-left-color: #2c73d2;">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-label">Attendance Rate</div>
+            <div class="stat-number">{{ percentage }}%</div>
+          </div>
+          <div class="stat-icon" style="background-color: #eaf1fb; color: #2c73d2;">
+            <i class="fa-solid fa-percent"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance Table -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+      <span class="fw-bold"><i class="fa-solid fa-calendar-check text-primary me-2"></i> Attendance Log Records</span>
+      <span class="text-muted small">Showing up to 100 recent entries</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-custom mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Course Code</th>
+              <th>Course Name</th>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Status</th>
+              <th>Recorded By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in attendance_records %}
+              <tr>
+                <td><strong class="text-dark">{{ r.date }}</strong></td>
+                <td><span class="badge bg-light text-primary border">{{ r.course_id }}</span></td>
+                <td>{{ r.course_name }}</td>
+                <td><strong>{{ r.student_id }}</strong></td>
+                <td>{{ r.student_name }}</td>
+                <td>
+                  {% if r.status == 'Present' %}
+                    <span class="badge bg-success px-2 py-1"><i class="fa-solid fa-check me-1"></i> Present</span>
+                  {% else %}
+                    <span class="badge bg-danger px-2 py-1"><i class="fa-solid fa-xmark me-1"></i> Absent</span>
+                  {% endif %}
+                </td>
+                <td><small class="text-muted">{{ r.marked_by }}</small></td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-5 text-muted">
+                  <i class="fa-solid fa-calendar-xmark fa-2x mb-2 d-block text-secondary"></i>
+                  No attendance records matched the specified filter criteria.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
